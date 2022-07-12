@@ -1,0 +1,17 @@
+{
+    "name": "yabx/webtoken",
+    "version": "0.0.1",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Yabx\\WebToken\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Yauheni Kiryienkau",
+            "email": "ya@redstream.by"
+        }
+    ],
+    "require": {}
+}

@@ -1,7 +1,9 @@
 {
     "name": "yabx/webtoken",
-    "version": "0.0.1",
+    "description": "Simple WebToken implementation",
+    "version": "0.0.2",
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Yabx\\WebToken\\": "src/"

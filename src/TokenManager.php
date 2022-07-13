@@ -2,30 +2,27 @@
 
 namespace Yabx\WebToken;
 
-use DateTime;
-use Exception;
 use Yabx\WebToken\Exceptions\TokenException;
 use Yabx\WebToken\Exceptions\TokenExpiredException;
 
 class TokenManager {
 
+    public const SIGNATURE = 'WT10';
+
     protected string $secret;
-    protected const SIGNATURE = 'WT10';
 
     public function __construct(string $secret) {
         $this->secret = $secret;
     }
 
     public function issue(int|string $user, array $payload = [], int $ttl = 3600): Token {
-        $created = new DateTime();
-        $expires = new DateTime("+$ttl seconds");
+        $issued = time();
+        $expires = $issued + $ttl;
         $data = [
-            Token::KEY_NONCE => bin2hex(random_bytes(8)),
             Token::KEY_USER => $user,
             Token::KEY_PAYLOAD => $payload,
-            Token::KEY_CREATED => $created->format('c'),
-            Token::KEY_EXPIRES => $expires->format('c'),
-            Token::KEY_VERSION => '1.0',
+            Token::KEY_ISSUED_AT => $issued,
+            Token::KEY_EXPIRES_AT => $expires,
         ];
         $json = json_encode($data);
         $hash = sha1($json . $this->secret);
@@ -46,8 +43,8 @@ class TokenManager {
         [$data, $hash] = explode("\n", $decoded, 2);
         if(sha1($data . $this->secret) === $hash) {
             $data = json_decode($data, true);
-            $expires = new DateTime($data[Token::KEY_EXPIRES]);
-            if($expires < new DateTime()) throw new TokenExpiredException;
+            $expires = Utils::fromTimestamp($data[Token::KEY_EXPIRES_AT]);
+            if($expires < Utils::now()) throw new TokenExpiredException;
             return new Token($token, $data);
         } else {
             throw new TokenException;

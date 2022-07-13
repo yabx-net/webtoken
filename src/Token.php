@@ -3,32 +3,27 @@
 namespace Yabx\WebToken;
 
 use DateTimeInterface;
-use DateTimeImmutable;
 use Yabx\WebToken\Exceptions\TokenException;
 
 class Token {
 
     public const KEY_USER = 'u';
-    public const KEY_NONCE = 'n';
     public const KEY_PAYLOAD = 'p';
-    public const KEY_CREATED = 'c';
-    public const KEY_EXPIRES = 'e';
-    public const KEY_VERSION = 'v';
+    public const KEY_ISSUED_AT = 'i';
+    public const KEY_EXPIRES_AT = 'e';
 
     private string $token;
     protected string|int $user;
     private array $payload;
-    private DateTimeInterface $created;
-    private DateTimeInterface $expires;
-    private string $version;
+    private DateTimeInterface $issuedAt;
+    private DateTimeInterface $expiresAt;
 
     public function __construct(string $token, array $data) {
         $this->token = $token;
         $this->user = $data[self::KEY_USER] ?? throw new TokenException('Invalid token (user)');
         $this->payload = $data[self::KEY_PAYLOAD] ?? throw new TokenException('Invalid token (payload)');
-        $this->created = new DateTimeImmutable($data[self::KEY_CREATED]) ?? throw new TokenException('Invalid token (created)');
-        $this->expires = new DateTimeImmutable($data[self::KEY_EXPIRES]) ?? throw new TokenException('Invalid token (expires)');
-        $this->version = $data[self::KEY_VERSION] ?? throw new TokenException('Invalid token (version)');
+        $this->issuedAt = Utils::fromTimestamp($data[self::KEY_ISSUED_AT] ?? $data['c'] ?? throw new TokenException('Invalid token (issue date)'));
+        $this->expiresAt = Utils::fromTimestamp($data[self::KEY_EXPIRES_AT] ?? throw new TokenException('Invalid token (expires date)'));
     }
 
     public function getToken(): string {
@@ -43,16 +38,12 @@ class Token {
         return $this->payload;
     }
 
-    public function getCreated(): DateTimeInterface {
-        return $this->created;
+    public function getIssuedAt(): DateTimeInterface {
+        return $this->issuedAt;
     }
 
-    public function getExpires(): DateTimeInterface {
-        return $this->expires;
-    }
-
-    public function getVersion(): string {
-        return $this->version;
+    public function getExpiresAt(): DateTimeInterface {
+        return $this->expiresAt;
     }
 
     public function __toString(): string {
